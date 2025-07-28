@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>LinkGuard - URL Safety Checker</title>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap">
+  <link rel="icon" type="image/png" href="/static/favicon.png">
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+  <header>
+    <h1>LINKGUARD</h1>
+    <p style="color:#aaa; font-size:0.9rem;">Analyze suspicious URLs instantly</p>
+  </header>
+
+  <main>
+    <div class="card">
+      <form method="POST">
+        <input type="text" name="url" placeholder="Enter the URL" value="{{ request.form.url or '' }}" required />
+        <br>
+        <button type="submit">Check URL</button>
+      </form>
+
+      {% if result %}
+        <div class="results">
+          <div class="verdict">{{ result }}</div>
+          {% if details %}
+            <ul class="reason">
+              {% for r in details %}
+                <li>{{ r }}</li>
+              {% endfor %}
+            </ul>
+          {% endif %}
+        </div>
+      {% endif %}
+    </div>
+  </main>
+
+  <footer>
+    &copy; 2025 LinkGuard | Built for safety.
+  </footer>
+</body>
+</html>
