@@ -10,31 +10,47 @@ def is_valid_url(url):
         return True
     return False
 
-def check_Url(url):
-    reasons=[]
-    score=0
+def looks_like_impersonation(url):
+    known_brands = ["facebook", "google", "paypal", "amazon", "netflix", "apple", "microsoft"]
+    parsed = urlparse(url)
+    full_domain = parsed.netloc.lower()
 
-    sus_keywords=["login", "verify", "update", "free", "winner", "claim", "password"]
+    for brand in known_brands:
+        if brand in full_domain and not full_domain.endswith(f"{brand}.com"):
+            return f"Possible impersonation of {brand}"
+
+    return None
+
+def check_Url(url):
+    reasons = []
+    score = 0
+
+    sus_keywords = ["login", "verify", "update", "free", "winner", "claim", "password"]
     for keyword in sus_keywords:
         if keyword in url.lower():
-            reasons.append(f"suspicious keyword {keyword}")
-            score+=20
-    
-    if re.match(r"http[s]?://\d{1,3}(\.\d{1,3}){3}",url):
-        reasons.append("Using IP address")
-        score+=30
+            reasons.append(f"suspicious keyword '{keyword}'")
+            score += 20 
+
+    if re.match(r"http[s]?://\d{1,3}(\.\d{1,3}){3}", url):
+        reasons.append("Using IP address instead of domain")
+        score += 30
 
     if "bit.ly" in url or "tinyurl" in url:
-        reasons.append("Shortenned url")
-        score+=25
+        reasons.append("Shortened URL detected")
+        score += 25
 
-    verdict="Safe"
-    if score>=75:
+    impersonation = looks_like_impersonation(url)
+    if impersonation:
+        reasons.append(impersonation)
+        score += 40  
+
+    verdict = "Safe"
+    if score >= 75:
         verdict = "Dangerous"
-    elif score>=50:
+    elif score >= 50:
         verdict = "Suspicious"
-    
-    return {"score":score, "verdict":verdict, "reasons":reasons}
+
+    return {"score": score, "verdict": verdict, "reasons": reasons}
 
 @app.route("/",methods=['GET','POST'])
 def index():
